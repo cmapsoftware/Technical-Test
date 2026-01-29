@@ -1,27 +1,27 @@
+using TimesheetTest.Application.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<ITimesheetEntryRepository, TimesheetEntryRepository>();
 
-var app = builder.Build();
+var webApplication = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (!webApplication.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    webApplication.UseExceptionHandler("/Home/Error");
+    webApplication.UseHsts();
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+webApplication.UseHttpsRedirection();
+webApplication.UseStaticFiles();
+webApplication.UseRouting();
+webApplication.UseAuthorization();
 
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapControllerRoute(
+webApplication.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.Run();
+webApplication.Run();
