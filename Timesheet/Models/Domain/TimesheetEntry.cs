@@ -1,14 +1,9 @@
 ﻿namespace Timesheet.Models.Domain;
 
-// Represents a single row in a user's timesheet. 
-// For test store UserId and ProjectId directly to keep domain simple.
-// (User and Project objects not modeled in this test domain.)
-public class TimesheetEntry
+// I split TimesheetEntryInsert and TimesheetEntry.
+// I want the clean separation and to avoid having nullable Id in the main model.
+// I've not inherited TimesheetEntryInsert as I don't want TimesheetEntry, as an inherting class, to be used for inserts. (i.e. prevent Liskov Substitution Principle).
+public class TimesheetEntry : TimesheetEntryBase
 {
     public int Id { get; set; }
-    public int UserId { get; set; }
-    public int ProjectId { get; set; }
-    public DateTime Date { get; set; }
-    public decimal Hours { get; set; }
-    public string? Description { get; set; }
 }
