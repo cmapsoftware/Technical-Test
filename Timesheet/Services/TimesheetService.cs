@@ -27,6 +27,7 @@ public class TimesheetService(ITimesheetRepository timesheetRepository) : ITimes
     public TimesheetEntryDto? Add(TimesheetEntryInsertDto timesheetEntryInsertDto)
     {
         Validate(timesheetEntryInsertDto);
+
         var timesheetEntry = _timesheetRepository.Add(new TimesheetEntryInsert
         {
             UserId = timesheetEntryInsertDto.UserId,
@@ -79,11 +80,11 @@ public class TimesheetService(ITimesheetRepository timesheetRepository) : ITimes
         return _timesheetRepository.Delete(id);
     }
 
-    // this will force validation of the DTO using data annotations
+    // this will force validation of the DTO using its data annotations
     // (i.e. validate not called by MVC pipeline, such as in unit tests)
-    private static void Validate(object timesheetEntryDto)
+    public void Validate(object dto)
     {
-        var validationContext = new ValidationContext(timesheetEntryDto);
-        Validator.ValidateObject(timesheetEntryDto, validationContext, validateAllProperties: true);
+        var validationContext = new ValidationContext(dto);
+        Validator.ValidateObject(dto, validationContext, validateAllProperties: true);
     }
 }

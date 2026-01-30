@@ -82,12 +82,6 @@ public class TimesheetServiceTests
         Assert.Equal(expectedTimesheetEntry.Description, timesheetEntryDto.Description);
     }
 
-    [Fact]
-    public void Add_PreventsDuplicateEntries() //TODO: plus others needed!
-    {
-
-    }
-
     #endregion Add
 
     #region Delete
@@ -233,7 +227,7 @@ public class TimesheetServiceTests
         // Arrange
         var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
         var expectedTimesheetEntry = TimesheetEntryData.ListTimesheetEntry[0];
-        expectedTimesheetEntry.Hours = 0.1M; // work hours below minimum
+        expectedTimesheetEntry.Hours = 0.1M; // work hours below minimum of 0.25
         timesheetRepositoryMock
             .Setup(repo => repo.Add(It.IsAny<TimesheetEntryInsert>()))
             .Returns(expectedTimesheetEntry);
@@ -259,12 +253,12 @@ public class TimesheetServiceTests
     }
 
     [Fact]
-    public void Validate_MaxmumWorkHours()
+    public void Validate_MaximumWorkHours()
     {
         // Arrange
         var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
         var expectedTimesheetEntry = TimesheetEntryData.ListTimesheetEntry[0];
-        expectedTimesheetEntry.Hours = 13M; // work hours above maximum
+        expectedTimesheetEntry.Hours = 13M; // work hours above maximum of 12
         timesheetRepositoryMock
             .Setup(repo => repo.Add(It.IsAny<TimesheetEntryInsert>()))
             .Returns(expectedTimesheetEntry);
@@ -288,6 +282,119 @@ public class TimesheetServiceTests
         });
         Assert.Contains("Hours must be between 0.25 and 12.", ex.Message);
     }
+
+    [Fact]
+    public void Validate_MaximumDescriptionLength()
+    {
+        // Arrange
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        var expectedTimesheetEntry = TimesheetEntryData.ListTimesheetEntry[0];
+        expectedTimesheetEntry.Description = new string('A', 110); // description length above maximum of 100
+        timesheetRepositoryMock
+            .Setup(repo => repo.Add(It.IsAny<TimesheetEntryInsert>()))
+            .Returns(expectedTimesheetEntry);
+
+        var timesheetServiceMock = new TimesheetService(timesheetRepositoryMock.Object);
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
+        {
+            UserId = expectedTimesheetEntry.UserId,
+            ProjectId = expectedTimesheetEntry.ProjectId,
+            Date = expectedTimesheetEntry.Date,
+            Hours = expectedTimesheetEntry.Hours,
+            Description = expectedTimesheetEntry.Description
+        };
+
+        // Act
+
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() =>
+        {
+            timesheetServiceMock.Add(timesheetEntryInsertDto);
+        });
+        Assert.Contains("Description cannot exceed 100 characters.", ex.Message);
+    }
+
+    [Fact]
+    public void Validate_MinimumProjectId()
+    {
+        // Arrange
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        var expectedTimesheetEntry = TimesheetEntryData.ListTimesheetEntry[0];
+        expectedTimesheetEntry.ProjectId = 0; // invalid ProjectId below minimum of 1
+        timesheetRepositoryMock
+            .Setup(repo => repo.Add(It.IsAny<TimesheetEntryInsert>()))
+            .Returns(expectedTimesheetEntry);
+
+        var timesheetServiceMock = new TimesheetService(timesheetRepositoryMock.Object);
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
+        {
+            UserId = expectedTimesheetEntry.UserId,
+            ProjectId = expectedTimesheetEntry.ProjectId,
+            Date = expectedTimesheetEntry.Date,
+            Hours = expectedTimesheetEntry.Hours,
+            Description = expectedTimesheetEntry.Description
+        };
+
+        // Act
+
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() =>
+        {
+            timesheetServiceMock.Add(timesheetEntryInsertDto);
+        });
+        Assert.Contains("ProjectId must be a positive integer.", ex.Message);
+    }
+
+    [Fact]
+    public void Validate_MinimumUserId()
+    {
+        // Arrange
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        var expectedTimesheetEntry = TimesheetEntryData.ListTimesheetEntry[0];
+        expectedTimesheetEntry.UserId = 0; // invalid UserId below minimum of 1
+        timesheetRepositoryMock
+            .Setup(repo => repo.Add(It.IsAny<TimesheetEntryInsert>()))
+            .Returns(expectedTimesheetEntry);
+
+        var timesheetServiceMock = new TimesheetService(timesheetRepositoryMock.Object);
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
+        {
+            UserId = expectedTimesheetEntry.UserId,
+            ProjectId = expectedTimesheetEntry.ProjectId,
+            Date = expectedTimesheetEntry.Date,
+            Hours = expectedTimesheetEntry.Hours,
+            Description = expectedTimesheetEntry.Description
+        };
+
+        // Act
+
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() =>
+        {
+            timesheetServiceMock.Add(timesheetEntryInsertDto);
+        });
+        Assert.Contains("UserId must be a positive integer.", ex.Message);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    [Fact]
+    public void Add_PreventsDuplicateEntries() //TODO: plus others needed!
+    {
+
+    }
+
 
     #endregion Validation
 }

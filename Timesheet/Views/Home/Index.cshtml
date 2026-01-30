@@ -1,8 +1,78 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Timesheet.Models.ViewModels
+@model HomepageViewModel
+
+@{
+    ViewData["Title"] = "Timesheet Home Page";
+
+    // this is not ideal using a pair of different variables that work together
+    // in a production project better to have a strongly-typed object
+    var message = TempData["Message"] as string;
+    var type = TempData["MessageType"] as string ?? "alert-info";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>UserId</th>
+            <th>ProjectId</th>
+            <th>Date</th>
+            <th>Hours</th>
+            <th>Description</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Model.TimesheetEntries != null)
+        {
+            foreach (var timesheetEntry in Model.TimesheetEntries)
+            {
+                <partial name="_TimesheetRow" model="timesheetEntry" />
+            }
+        }
+        <tr class="table-secondary">
+            <form asp-action="Add" method="post">
+            <td>
+                &nbsp;
+            </td>
+            <td>
+                <input asp-for="NewTimesheetEntry.UserId" class="form-control" min="1" />
+            </td>
+            <td>
+                <input asp-for="NewTimesheetEntry.ProjectId" class="form-control" min="1" />
+            </td>
+            <td>
+                <input asp-for="NewTimesheetEntry.Date" class="form-control" />
+                <span asp-validation-for="NewTimesheetEntry.Date" class="text-danger"></span>
+            </td>
+            <td>
+                <input asp-for="NewTimesheetEntry.Hours" class="form-control" />
+                <span asp-validation-for="NewTimesheetEntry.Hours" class="text-danger"></span>
+            </td>
+            <td>
+                <input asp-for="NewTimesheetEntry.Description" class="form-control" />
+            </td>
+            <td>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </td>
+            </form>
+        </tr>
+
+        <!-- notification banner -->
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <tr>
+                <td colspan="7" class="@type fw-bold">
+                    <span>@message</span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

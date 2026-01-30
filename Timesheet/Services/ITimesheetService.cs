@@ -8,4 +8,5 @@ public interface ITimesheetService
     TimesheetEntryDto? Add(TimesheetEntryInsertDto timesheetEntryInsertDto);
     TimesheetEntryDto? Update(TimesheetEntryDto timesheetEntryDto);
     bool Delete(int id);
+    void Validate(object dto);
 }

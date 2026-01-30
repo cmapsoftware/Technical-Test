@@ -1,10 +1,12 @@
 using Timesheet.Repositories;
+using Timesheet.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<ITimesheetRepository, TimesheetRepository>();
+builder.Services.AddScoped<ITimesheetService, TimesheetService>();
 
 var webApplication = builder.Build();
 

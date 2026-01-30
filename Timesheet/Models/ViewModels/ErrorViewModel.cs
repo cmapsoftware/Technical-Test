@@ -1,3 +1,5 @@
+using Timesheet.Models.Dto;
+
 namespace Timesheet.Models.ViewModels;
 
 public class ErrorViewModel
