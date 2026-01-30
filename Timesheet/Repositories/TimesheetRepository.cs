@@ -11,8 +11,7 @@ public class TimesheetRepository : ITimesheetRepository
 
     // Private counter used to generate unique Ids for new entries mirroring DB auto-increment.
     // Avoid scanning list for highest Id. Also if highest row was deleted we do not want to reuse that ID.
-    // Zero-based indexing will make some testing easier.
-    private int _nextId = 0;
+    private int _nextId = 1;
 
     public IEnumerable<TimesheetEntry> GetAll()
     {
