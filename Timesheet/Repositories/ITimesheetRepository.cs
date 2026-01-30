@@ -2,6 +2,7 @@
 
 namespace Timesheet.Repositories;
 
+// Note: typically repository methods would be async when interacting with a database, but since this is an in-memory implementation, they are synchronous.
 public interface ITimesheetRepository
 {
     IEnumerable<TimesheetEntry> GetAll();

@@ -1,6 +1,6 @@
 ﻿using Timesheet.Models.Domain;
 
-namespace TimesheetTests.Tests.TestData;
+namespace Timesheet.Tests.TestData;
 
 public static class TimesheetEntryData
 {

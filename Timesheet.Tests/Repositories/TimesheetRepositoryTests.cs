@@ -1,7 +1,6 @@
 using FluentAssertions;
-using System.Linq;
 using Timesheet.Repositories;
-using TimesheetTests.Tests.TestData;
+using Timesheet.Tests.TestData;
 
 namespace Timesheet.Tests.Repositories;
 

@@ -7,7 +7,7 @@ namespace Timesheet.Repositories;
 // (I may not have a use for these returned values currently, but for testing alone they are useful)
 public class TimesheetRepository : ITimesheetRepository
 {
-    private readonly List<TimesheetEntry> _listTimesheetEntries = new();
+    private readonly List<TimesheetEntry> _listTimesheetEntries = [];
 
     // Private counter used to generate unique Ids for new entries mirroring DB auto-increment.
     // Avoid scanning list for highest Id. Also if highest row was deleted we do not want to reuse that ID.
