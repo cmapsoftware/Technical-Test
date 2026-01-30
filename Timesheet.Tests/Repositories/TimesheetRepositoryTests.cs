@@ -27,9 +27,9 @@ public class TimesheetRepositoryTests
         // Arrange
         var timesheetRepository = new TimesheetRepository();
 
-        var timesheetEntryInsert1 = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry1];
-        var timesheetEntryInsert2 = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry2];
-        var timesheetEntryInsert3 = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry3];
+        var timesheetEntryInsert1 = TimesheetEntryData.ListTimesheetEntryInsert[0];
+        var timesheetEntryInsert2 = TimesheetEntryData.ListTimesheetEntryInsert[1];
+        var timesheetEntryInsert3 = TimesheetEntryData.ListTimesheetEntryInsert[2];
 
         // Act
         var timesheetEntry1WithId = timesheetRepository.Add(timesheetEntryInsert1);
@@ -67,9 +67,9 @@ public class TimesheetRepositoryTests
     {
         // Arrange
         var timesheetRepository = new TimesheetRepository();
-        var timesheetEntry1 = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry1];
-        var timesheetEntry2 = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry2];
-        var timesheetEntry3 = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry3];
+        var timesheetEntry1 = TimesheetEntryData.ListTimesheetEntryInsert[0];
+        var timesheetEntry2 = TimesheetEntryData.ListTimesheetEntryInsert[1];
+        var timesheetEntry3 = TimesheetEntryData.ListTimesheetEntryInsert[2];
 
         // Act
         var timesheetEntry1WithId = timesheetRepository.Add(timesheetEntry1);
@@ -77,9 +77,9 @@ public class TimesheetRepositoryTests
         var timesheetEntry3WithId = timesheetRepository.Add(timesheetEntry3);
 
         // Assert
-        Assert.Equal(TimesheetEntryData.ListPositionTimesheetEntry1, timesheetEntry1WithId.Id);
-        Assert.Equal(TimesheetEntryData.ListPositionTimesheetEntry2, timesheetEntry2WithId.Id);
-        Assert.Equal(TimesheetEntryData.ListPositionTimesheetEntry3, timesheetEntry3WithId.Id);
+        Assert.Equal(1, timesheetEntry1WithId.Id);
+        Assert.Equal(2, timesheetEntry2WithId.Id);
+        Assert.Equal(3, timesheetEntry3WithId.Id);
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class TimesheetRepositoryTests
     {
         // Arrange
         var timesheetRepository = new TimesheetRepository();
-        var timesheetEntryWithNoDescription = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry3];
+        var timesheetEntryWithNoDescription = TimesheetEntryData.ListTimesheetEntryInsert[2];
 
         // Act
         // get copy of the entry with assigned Id
@@ -103,9 +103,9 @@ public class TimesheetRepositoryTests
     {
         // Arrange
         var timesheetRepository = new TimesheetRepository();
-        var timesheetEntryToDelete1 = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry1];
-        var timesheetEntryToDelete2 = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry2];
-        var timesheetEntryToInsertAfterDeletions = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry3];
+        var timesheetEntryToDelete1 = TimesheetEntryData.ListTimesheetEntryInsert[0];
+        var timesheetEntryToDelete2 = TimesheetEntryData.ListTimesheetEntryInsert[1];
+        var timesheetEntryToInsertAfterDeletions = TimesheetEntryData.ListTimesheetEntryInsert[2];
 
         // add timesheet entries
         var timesheetEntryToDelete1Id = timesheetRepository.Add(timesheetEntryToDelete1).Id;
@@ -124,9 +124,9 @@ public class TimesheetRepositoryTests
         Assert.DoesNotContain(timeSheetEntryList, timesheetEntry => timesheetEntry.Id == timesheetEntryToDelete1Id);
         Assert.Contains(timeSheetEntryList, timesheetEntry => timesheetEntry.Id == timesheetEntryToInsertAfterDeletionsId);
 
-        Assert.Equal(TimesheetEntryData.ListPositionTimesheetEntry1, timesheetEntryToDelete1Id);
-        Assert.Equal(TimesheetEntryData.ListPositionTimesheetEntry2, timesheetEntryToDelete2Id);
-        Assert.Equal(TimesheetEntryData.ListPositionTimesheetEntry3, timesheetEntryToInsertAfterDeletionsId);
+        Assert.Equal(1, timesheetEntryToDelete1Id);
+        Assert.Equal(2, timesheetEntryToDelete2Id);
+        Assert.Equal(3, timesheetEntryToInsertAfterDeletionsId);
     }
 
     #endregion Add 
@@ -138,7 +138,7 @@ public class TimesheetRepositoryTests
     {
         // Arrange
         var timesheetRepository = new TimesheetRepository();
-        var timesheetEntryInsert = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry1];
+        var timesheetEntryInsert = TimesheetEntryData.ListTimesheetEntryInsert[0];
         var timesheetEntry1WithId = timesheetRepository.Add(timesheetEntryInsert);
 
         // Act
@@ -167,8 +167,8 @@ public class TimesheetRepositoryTests
     {
         // Arrange
         var timesheetRepository = new TimesheetRepository();
-        var timesheetEntryToBeDeleted = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry1];
-        var timesheetEntryToRemainUnaffected = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry2];
+        var timesheetEntryToBeDeleted = TimesheetEntryData.ListTimesheetEntryInsert[0];
+        var timesheetEntryToRemainUnaffected = TimesheetEntryData.ListTimesheetEntryInsert[1];
         var timesheetEntryToBeDeletedWithId = timesheetRepository.Add(timesheetEntryToBeDeleted);
         var timesheetEntryToRemainUnaffectedWithId = timesheetRepository.Add(timesheetEntryToRemainUnaffected);
 
@@ -190,9 +190,9 @@ public class TimesheetRepositoryTests
     {
         // Arrange
         var timesheetRepository = new TimesheetRepository();
-        var timesheetEntryUnaffected = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry1];
-        var timesheetEntryToBeUpdated = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry2];
-        var timesheetEntryUpdater = TimesheetEntryData.ListTimesheetEntry[TimesheetEntryData.ListPositionTimesheetEntry3];
+        var timesheetEntryUnaffected = TimesheetEntryData.ListTimesheetEntryInsert[0];
+        var timesheetEntryToBeUpdated = TimesheetEntryData.ListTimesheetEntryInsert[1];
+        var timesheetEntryUpdater = TimesheetEntryData.ListTimesheetEntry[2];
         timesheetRepository.Add(timesheetEntryUnaffected);
         var timesheetEntryToBeUpdatedWithId =  timesheetRepository.Add(timesheetEntryToBeUpdated);
 
@@ -217,8 +217,8 @@ public class TimesheetRepositoryTests
     {
         // Arrange
         var timesheetRepository = new TimesheetRepository();
-        var timesheetEntry = TimesheetEntryData.ListTimesheetEntryInsert[TimesheetEntryData.ListPositionTimesheetEntry1];
-        var timesheetEntryUpdaterNotInRepository = TimesheetEntryData.ListTimesheetEntry[TimesheetEntryData.ListPositionTimesheetEntry2];
+        var timesheetEntry = TimesheetEntryData.ListTimesheetEntryInsert[0];
+        var timesheetEntryUpdaterNotInRepository = TimesheetEntryData.ListTimesheetEntry[1];
 
         timesheetRepository.Add(timesheetEntry);
 
