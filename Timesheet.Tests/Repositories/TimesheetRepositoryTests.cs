@@ -37,10 +37,10 @@ public class TimesheetRepositoryTests
         var timesheetEntry3WithId = timesheetRepository.Add(timesheetEntryInsert3);
 
         // Assert
-        var listTimesheetEntry = timesheetRepository.GetAll();
-        Assert.Contains(timesheetEntry1WithId, listTimesheetEntry);
-        Assert.Contains(timesheetEntry2WithId, listTimesheetEntry);
-        Assert.Contains(timesheetEntry3WithId, listTimesheetEntry);
+        var timesheetEntryList = timesheetRepository.GetAll();
+        Assert.Contains(timesheetEntry1WithId, timesheetEntryList);
+        Assert.Contains(timesheetEntry2WithId, timesheetEntryList);
+        Assert.Contains(timesheetEntry3WithId, timesheetEntryList);
     }
 
     #endregion Get  <!-- I like annotating the #endregion. It makes large files easier to navigate. -->
