@@ -6,7 +6,8 @@ namespace Timesheet.Repositories;
 public interface ITimesheetRepository
 {
     IEnumerable<TimesheetEntry> GetAll();
-    TimesheetEntry? Get(int id);
+    TimesheetEntry? GetById(int id);
+    TimesheetEntry? GetDuplicateTimesheetRow(int userId, int projectId, DateTime date, int? currentRowId);
     TimesheetEntry? Add(TimesheetEntryInsert timesheetEntryInsert);
     TimesheetEntry? Update(TimesheetEntry timesheetEntry);
     bool Delete(int id);

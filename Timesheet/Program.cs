@@ -1,5 +1,6 @@
 using Timesheet.Repositories;
 using Timesheet.Services;
+using Timesheet.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<ITimesheetRepository, TimesheetRepository>();
 builder.Services.AddScoped<ITimesheetService, TimesheetService>();
+builder.Services.AddScoped<ITimesheetEntryValidator, TimesheetEntryValidator>();
 
 var webApplication = builder.Build();
 

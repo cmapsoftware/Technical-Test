@@ -2,12 +2,14 @@
 using Timesheet.Models.Domain;
 using Timesheet.Models.Dto;
 using Timesheet.Repositories;
+using Timesheet.Validation;
 
 namespace Timesheet.Services;
 
-public class TimesheetService(ITimesheetRepository timesheetRepository) : ITimesheetService
+public class TimesheetService(ITimesheetRepository timesheetRepository, ITimesheetEntryValidator timesheetEntryValidator) : ITimesheetService
 {
     private readonly ITimesheetRepository _timesheetRepository = timesheetRepository;
+    private readonly ITimesheetEntryValidator _timesheetEntryValidator = timesheetEntryValidator;
 
     public IEnumerable<TimesheetEntryDto> GetAll()
     {
@@ -24,9 +26,36 @@ public class TimesheetService(ITimesheetRepository timesheetRepository) : ITimes
         return timesheetEntryDtos;
     }
 
+    // Note: this method is very specific, in a full project I'd do something more general
+    public TimesheetEntryDto? GetDuplicateTimesheetRow(int userId, int projectId, DateTime date, int? currentUserId)
+    {
+        var timesheetEntry = _timesheetRepository.GetDuplicateTimesheetRow( userId, projectId, date, currentUserId);
+
+        if (timesheetEntry == null)
+        {
+            return null;
+        }
+
+        return new TimesheetEntryDto
+        {
+            Id = timesheetEntry.Id,
+            UserId = timesheetEntry.UserId,
+            ProjectId = timesheetEntry.ProjectId,
+            Date = timesheetEntry.Date,
+            Hours = timesheetEntry.Hours,
+            Description = timesheetEntry.Description
+        };
+    }
+
     public TimesheetEntryDto? Add(TimesheetEntryInsertDto timesheetEntryInsertDto)
     {
         Validate(timesheetEntryInsertDto);
+
+        var validationResult = _timesheetEntryValidator.ValidateUnique(timesheetEntryInsertDto);
+        if (validationResult != ValidationResult.Success)
+        {
+            throw new ValidationException(validationResult!.ErrorMessage);
+        }
 
         var timesheetEntry = _timesheetRepository.Add(new TimesheetEntryInsert
         {
@@ -51,6 +80,12 @@ public class TimesheetService(ITimesheetRepository timesheetRepository) : ITimes
     public TimesheetEntryDto? Update(TimesheetEntryDto timesheetEntryDto)
     {
         Validate(timesheetEntryDto);
+
+        var validationResult = _timesheetEntryValidator.ValidateUnique(timesheetEntryDto, timesheetEntryDto.Id);
+        if (validationResult != ValidationResult.Success)
+        {
+            throw new ValidationException(validationResult!.ErrorMessage);
+        }
 
         var timesheetEntryUpdate = new TimesheetEntry
         {

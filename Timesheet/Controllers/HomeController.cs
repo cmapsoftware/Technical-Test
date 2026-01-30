@@ -7,6 +7,7 @@ using Timesheet.Services;
 
 namespace Timesheet.Controllers;
 
+// Note: Controller only does orchestration, no business logic
 public class HomeController(ITimesheetService service) : Controller
 {
     private readonly ITimesheetService _service = service;
@@ -14,16 +15,7 @@ public class HomeController(ITimesheetService service) : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var timesheetEntryList = _service.GetAll();
-        var homeViewModel = new HomepageViewModel
-        {
-            TimesheetEntries = [.. timesheetEntryList],
-            NewTimesheetEntry = new TimesheetEntryInsertDto
-            {
-                Date = DateTime.Today
-            }
-        };
-        return View(homeViewModel);
+        return RedirectWithInsertDto(null);
     }
 
     [HttpPost]
@@ -33,18 +25,22 @@ public class HomeController(ITimesheetService service) : Controller
         {
             TempData["Message"] = "Add Timesheet entry failed.";
             TempData["MessageType"] = "alert-danger";
-            var timesheetEntryList = _service.GetAll();
-            return View("Index", new HomepageViewModel
-            {
-                TimesheetEntries = [.. timesheetEntryList],
-                NewTimesheetEntry = timesheetEntryInsertDto
-            });
+            return RedirectWithInsertDto(timesheetEntryInsertDto);
         }
 
-        var timesheetEntryDto = _service.Add(timesheetEntryInsertDto);
-        TempData["Message"] = $"Timesheet entry added with ID #{timesheetEntryDto?.Id}";
-        TempData["MessageType"] = "alert-success";
-        return RedirectToAction("Index");
+        try
+        {
+            var timesheetEntryDto = _service.Add(timesheetEntryInsertDto);
+            TempData["Message"] = $"Timesheet entry added with ID #{timesheetEntryDto?.Id}";
+            TempData["MessageType"] = "alert-success";
+            return RedirectToAction("Index");
+        }
+        catch (ValidationException ex)
+        {
+            TempData["Message"] = ex.Message;
+            TempData["MessageType"] = "alert-danger";
+            return RedirectWithInsertDto(timesheetEntryInsertDto);
+        }
     }
 
     [HttpPost]
@@ -61,13 +57,21 @@ public class HomeController(ITimesheetService service) : Controller
             {
                 TempData["Message"] = $"Update failed for timesheet entry #{timesheetEntryDto.Id}. {ex.Message} Row has been reset.";
                 TempData["MessageType"] = "alert-danger";
-                //return View("Index", GetViewModel()); // or however you reload the view
                 return RedirectToAction("Index");
             }
 
-            _service.Update(timesheetEntryDto);
-            TempData["Message"] = $"Timesheet entry #{id} updated successfully.";
-            TempData["MessageType"] = "alert-success";
+            try
+            {
+                _service.Update(timesheetEntryDto);
+                TempData["Message"] = $"Timesheet entry #{id} updated successfully.";
+                TempData["MessageType"] = "alert-success";
+            }
+            catch (ValidationException ex)
+            {
+                TempData["Message"] = ex.Message;
+                TempData["MessageType"] = "alert-danger";
+                return RedirectWithInsertDto(null);
+            }
         }
         else if (action == "delete")
         {
@@ -83,5 +87,21 @@ public class HomeController(ITimesheetService service) : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    private ViewResult RedirectWithInsertDto(TimesheetEntryInsertDto? timesheetEntryInsertDto)
+    {
+        timesheetEntryInsertDto ??= new TimesheetEntryInsertDto
+        {
+            Date = DateTime.Today
+        };
+
+        var timesheetEntryList = _service.GetAll();
+        var homeViewModel = new HomepageViewModel
+        {
+            TimesheetEntries = [.. timesheetEntryList],
+            NewTimesheetEntry = timesheetEntryInsertDto
+        };
+        return View("Index", homeViewModel);
     }
 }

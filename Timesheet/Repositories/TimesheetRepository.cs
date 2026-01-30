@@ -15,12 +15,22 @@ public class TimesheetRepository : ITimesheetRepository
 
     public IEnumerable<TimesheetEntry> GetAll()
     {
-       return _listTimesheetEntries;
+        return _listTimesheetEntries;
     }
 
-    public TimesheetEntry? Get(int timesheetId)
+    public TimesheetEntry? GetById(int timesheetId)
     {
         return _listTimesheetEntries.FirstOrDefault(timesheetEntry => timesheetEntry.Id == timesheetId);
+    }
+
+    public TimesheetEntry? GetDuplicateTimesheetRow(int userId, int projectId, DateTime date, int? currentRowId)
+    {
+        return _listTimesheetEntries.FirstOrDefault(timesheetEntry =>
+                timesheetEntry.UserId == userId &&
+                timesheetEntry.ProjectId == projectId &&
+                timesheetEntry.Date == date &&
+                (currentRowId == null || timesheetEntry.Id != currentRowId) // Exclude current row as duplicate if updating
+            );
     }
 
     public TimesheetEntry Add(TimesheetEntryInsert timesheetEntryInsert)
@@ -41,7 +51,7 @@ public class TimesheetRepository : ITimesheetRepository
 
     public TimesheetEntry? Update(TimesheetEntry timesheetEntry)
     {
-        var existingTimesheetEntry = Get(timesheetEntry.Id);
+        var existingTimesheetEntry = GetById(timesheetEntry.Id);
         if (existingTimesheetEntry == null)
         {
             return null;
@@ -57,7 +67,7 @@ public class TimesheetRepository : ITimesheetRepository
 
     public bool Delete(int id)
     {
-        var existing = Get(id);
+        var existing = GetById(id);
         if (existing == null)
         {
             return false;
