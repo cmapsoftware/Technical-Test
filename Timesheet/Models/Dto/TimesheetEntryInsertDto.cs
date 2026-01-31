@@ -13,6 +13,7 @@ public class TimesheetEntryInsertDto
 
     [DataType(DataType.Date)]
     [DateNotInFuture(ErrorMessage = "Date cannot be in the future.")]
+    [DateNotAncient(ErrorMessage = "Date must be greater than 1999")]
     public DateTime Date { get; set; }
 
     [Range(0.25, 12, ErrorMessage = "Hours must be between 0.25 and 12.")] // assumed reasonable working time bounds per day
