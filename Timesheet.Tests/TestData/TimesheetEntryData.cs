@@ -1,4 +1,5 @@
 ﻿using Timesheet.Models.Domain;
+using Timesheet.Models.Dto;
 
 namespace Timesheet.Tests.TestData;
 
@@ -56,4 +57,15 @@ public static class TimesheetEntryData
             Description = null
         }
     ];
+
+    public static TimesheetEntryDto TimesheetEntryDto =>
+    new TimesheetEntryDto
+    {
+        Id = 1,
+        UserId = 101,
+        ProjectId = 201,
+        Date = new DateTime(2024, 6, 1),
+        Hours = 8.0m,
+        Description = "Worked on project tasks"
+    };
 }

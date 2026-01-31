@@ -24,13 +24,13 @@ public class TimesheetServiceTests
 
         var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
         timesheetEntryValidatorMock
-           .Setup(timesheetRepository => timesheetRepository.ValidateUnique(It.IsAny<TimesheetEntryDto>(), null))
-           .Returns(ValidationResult.Success);
+            .Setup(timesheetRepository => timesheetRepository.ValidateUnique(It.IsAny<TimesheetEntryDto>(), null))
+            .Returns(ValidationResult.Success);
 
-        var timesheetServiceMock = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
 
         // Act
-        var timesheetEntryDtoList = timesheetServiceMock.GetAll().ToList();
+        var timesheetEntryDtoList = timesheetService.GetAll().ToList();
 
         // Assert
         Assert.Equal(TimesheetEntryData.ListTimesheetEntry.Count, timesheetEntryDtoList.Count);
@@ -76,14 +76,13 @@ public class TimesheetServiceTests
         // mock validator
         var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
         timesheetEntryValidatorMock
-           .Setup(timesheetRepository => timesheetRepository.ValidateUnique(It.IsAny<TimesheetEntryInsertDto>(), null))
-           .Returns(ValidationResult.Success);
+            .Setup(timesheetRepository => timesheetRepository.ValidateUnique(It.IsAny<TimesheetEntryInsertDto>(), null))
+            .Returns(ValidationResult.Success);
 
-        // mock service
-        var timesheetServiceMock = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
 
         // Act
-        var timesheetEntryDto = timesheetServiceMock.Add(timesheetEntryInsertDto);
+        var timesheetEntryDto = timesheetService.Add(timesheetEntryInsertDto);
 
         // Assert
         Assert.NotNull(timesheetEntryDto);
@@ -117,11 +116,10 @@ public class TimesheetServiceTests
            .Setup(timesheetRepository => timesheetRepository.ValidateUnique(It.IsAny<TimesheetEntryInsertDto>(), null))
            .Returns(ValidationResult.Success);
 
-        // mock service
-        var timesheetServiceMock = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
 
         // Act
-        var result = timesheetServiceMock.Delete(1);
+        var result = timesheetService.Delete(1);
 
         // Assert
         Assert.True(result);
@@ -146,11 +144,10 @@ public class TimesheetServiceTests
            .Setup(timesheetRepository => timesheetRepository.ValidateUnique(It.IsAny<TimesheetEntryInsertDto>(), null))
            .Returns(ValidationResult.Success);
 
-        // mock service
-        var timesheetServiceMock = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
 
         // Act
-        var result = timesheetServiceMock.Delete(1);
+        var result = timesheetService.Delete(1);
 
         // Assert
         Assert.False(result);
@@ -188,8 +185,7 @@ public class TimesheetServiceTests
            .Setup(timesheetRepository => timesheetRepository.ValidateUnique(It.IsAny<TimesheetEntryInsertDto>(), null))
            .Returns(ValidationResult.Success);
 
-        // mock service
-        var timesheetServiceMock = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
 
         var updateDto = new TimesheetEntryDto
         {
@@ -202,18 +198,138 @@ public class TimesheetServiceTests
         };
 
         // Act
-        var updatedTimeshettEntryDto = timesheetServiceMock.Update(updateDto);
+        var updatedTimesheetEntryDto = timesheetService.Update(updateDto);
 
         // Assert
-        Assert.NotNull(updatedTimeshettEntryDto);
-        Assert.Equal(updatedEntity.Id, updatedTimeshettEntryDto.Id);
-        Assert.Equal(updatedEntity.UserId, updatedTimeshettEntryDto.UserId);
-        Assert.Equal(updatedEntity.ProjectId, updatedTimeshettEntryDto.ProjectId);
-        Assert.Equal(updatedEntity.Date, updatedTimeshettEntryDto.Date);
-        Assert.Equal(updatedEntity.Hours, updatedTimeshettEntryDto.Hours);
-        Assert.Equal(updatedEntity.Description, updatedTimeshettEntryDto.Description);
+        Assert.NotNull(updatedTimesheetEntryDto);
+        Assert.Equal(updatedEntity.Id, updatedTimesheetEntryDto.Id);
+        Assert.Equal(updatedEntity.UserId, updatedTimesheetEntryDto.UserId);
+        Assert.Equal(updatedEntity.ProjectId, updatedTimesheetEntryDto.ProjectId);
+        Assert.Equal(updatedEntity.Date, updatedTimesheetEntryDto.Date);
+        Assert.Equal(updatedEntity.Hours, updatedTimesheetEntryDto.Hours);
+        Assert.Equal(updatedEntity.Description, updatedTimesheetEntryDto.Description);
 
         timesheetRepositoryMock.Verify(r => r.Update(It.IsAny<TimesheetEntry>()), Times.Once);
+    }
+
+    [Fact]
+    public void Update_ThrowsValidationException_WhenDtoInvalid()
+    {
+        // Arrange
+        var timesheetEntryDto = TimesheetEntryData.TimesheetEntryDto;
+        timesheetEntryDto.UserId = 0; // invalid UserId
+
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        // Arrange
+        Assert.Throws<ValidationException>(() => timesheetService.Update(timesheetEntryDto));
+    }
+
+    [Fact]
+    public void Update_ThrowsValidationException_WhenUniqueValidationFails()
+    {
+        // Arrange
+        var timesheetEntryDto = TimesheetEntryData.TimesheetEntryDto;
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+        timesheetEntryValidatorMock
+            .Setup(v => v.ValidateUnique(timesheetEntryDto, timesheetEntryDto.Id))
+            .Returns(new ValidationResult("Duplicate entry"));
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() => timesheetService.Update(timesheetEntryDto));
+        Assert.Contains("Duplicate entry", ex.Message);
+
+        timesheetRepositoryMock.Verify(r => r.Update(It.IsAny<TimesheetEntry>()), Times.Never);
+    }
+
+    [Fact]
+    public void Update_ReturnsNull_WhenRepositoryReturnsNull()
+    {
+        // Arrange
+        var timesheetEntryDto = TimesheetEntryData.TimesheetEntryDto;
+
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        timesheetRepositoryMock
+            .Setup(r => r.Update(It.IsAny<TimesheetEntry>()))
+            .Returns((TimesheetEntry?)null);
+
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+        timesheetEntryValidatorMock
+            .Setup(v => v.ValidateUnique(TimesheetEntryData.TimesheetEntryDto, TimesheetEntryData.TimesheetEntryDto.Id))
+            .Returns(ValidationResult.Success);
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        var result = timesheetService.Update(timesheetEntryDto);
+
+        // Assert
+        Assert.Null(result);
+        timesheetRepositoryMock.Verify(r => r.Update(It.Is<TimesheetEntry>(t =>
+            t.Id == timesheetEntryDto.Id &&
+            t.UserId == timesheetEntryDto.UserId &&
+            t.ProjectId == timesheetEntryDto.ProjectId &&
+            t.Date == timesheetEntryDto.Date &&
+            t.Hours == timesheetEntryDto.Hours &&
+            t.Description == timesheetEntryDto.Description)), Times.Once);
+    }
+
+    [Fact]
+    public void Update_ReturnsMappedDto_WhenRepositoryReturnsEntity()
+    {
+        // Arrange
+        var timesheetEntryDto = TimesheetEntryData.TimesheetEntryDto;
+
+        var returnedTimesheetEntry = new TimesheetEntry
+        {
+            Id = timesheetEntryDto.Id,
+            UserId = timesheetEntryDto.UserId,
+            ProjectId = timesheetEntryDto.ProjectId,
+            Date = timesheetEntryDto.Date,
+            Hours = timesheetEntryDto.Hours,
+            Description = timesheetEntryDto.Description
+        };
+
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        timesheetRepositoryMock
+            .Setup(r => r.Update(It.IsAny<TimesheetEntry>()))
+            .Returns(returnedTimesheetEntry);
+
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+        timesheetEntryValidatorMock
+            .Setup(v => v.ValidateUnique(timesheetEntryDto, timesheetEntryDto.Id))
+            .Returns(ValidationResult.Success);
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        var result = timesheetService.Update(timesheetEntryDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(timesheetEntryDto.Id, result!.Id);
+        Assert.Equal(timesheetEntryDto.UserId, result.UserId);
+        Assert.Equal(timesheetEntryDto.ProjectId, result.ProjectId);
+        Assert.Equal(timesheetEntryDto.Date, result.Date);
+        Assert.Equal(timesheetEntryDto.Hours, result.Hours);
+        Assert.Equal(timesheetEntryDto.Description, result.Description);
     }
 
     #endregion Update
@@ -511,8 +627,7 @@ public class TimesheetServiceTests
     public void Validate_ValidInsertDto_DoesNotThrow()
     {
         // Arrange
-        var service = CreateService();
-        var dto = new TimesheetEntryInsertDto
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
         {
             UserId = 1,
             ProjectId = 1,
@@ -521,8 +636,15 @@ public class TimesheetServiceTests
             Description = "Normal description"
         };
 
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
         // Act
-        var ex = Record.Exception(() => service.Validate(dto));
+        var ex = Record.Exception(() => timesheetService.Validate(timesheetEntryInsertDto));
 
         // Assert
         Assert.Null(ex);
@@ -532,8 +654,7 @@ public class TimesheetServiceTests
     public void Validate_InsertDto_WithFutureDate_ThrowsValidationException()
     {
         // Arrange
-        var service = CreateService();
-        var dto = new TimesheetEntryInsertDto
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
         {
             UserId = 1,
             ProjectId = 1,
@@ -542,8 +663,17 @@ public class TimesheetServiceTests
             Description = "Future date"
         };
 
-        // Act & Assert
-        var ex = Assert.Throws<ValidationException>(() => service.Validate(dto));
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+
+        // Act
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() => timesheetService.Validate(timesheetEntryInsertDto));
         Assert.Contains("Date cannot be in the future.", ex.Message);
     }
 
@@ -551,8 +681,7 @@ public class TimesheetServiceTests
     public void Validate_InsertDto_WithTooSmallHours_ThrowsValidationException()
     {
         // Arrange
-        var service = CreateService();
-        var dto = new TimesheetEntryInsertDto
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
         {
             UserId = 1,
             ProjectId = 1,
@@ -561,8 +690,16 @@ public class TimesheetServiceTests
             Description = "Too small hours"
         };
 
-        // Act & Assert
-        var ex = Assert.Throws<ValidationException>(() => service.Validate(dto));
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() => timesheetService.Validate(timesheetEntryInsertDto));
         Assert.Contains("Hours must be between 0.25 and 12.", ex.Message);
     }
 
@@ -570,8 +707,7 @@ public class TimesheetServiceTests
     public void Validate_InsertDto_WithTooLargeHours_ThrowsValidationException()
     {
         // Arrange
-        var service = CreateService();
-        var dto = new TimesheetEntryInsertDto
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
         {
             UserId = 1,
             ProjectId = 1,
@@ -580,8 +716,16 @@ public class TimesheetServiceTests
             Description = "Too large hours"
         };
 
-        // Act & Assert
-        var ex = Assert.Throws<ValidationException>(() => service.Validate(dto));
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() => timesheetService.Validate(timesheetEntryInsertDto));
         Assert.Contains("Hours must be between 0.25 and 12.", ex.Message);
     }
 
@@ -589,8 +733,7 @@ public class TimesheetServiceTests
     public void Validate_InsertDto_WithTooLongDescription_ThrowsValidationException()
     {
         // Arrange
-        var service = CreateService();
-        var dto = new TimesheetEntryInsertDto
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
         {
             UserId = 1,
             ProjectId = 1,
@@ -599,8 +742,16 @@ public class TimesheetServiceTests
             Description = new string('A', 110) // > 100
         };
 
-        // Act & Assert
-        var ex = Assert.Throws<ValidationException>(() => service.Validate(dto));
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() => timesheetService.Validate(timesheetEntryInsertDto));
         Assert.Contains("Description cannot exceed 100 characters.", ex.Message);
     }
 
@@ -608,8 +759,7 @@ public class TimesheetServiceTests
     public void Validate_InsertDto_WithInvalidUserId_ThrowsValidationException()
     {
         // Arrange
-        var service = CreateService();
-        var dto = new TimesheetEntryInsertDto
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
         {
             UserId = 0, // invalid
             ProjectId = 1,
@@ -618,8 +768,16 @@ public class TimesheetServiceTests
             Description = "Invalid user"
         };
 
-        // Act & Assert
-        var ex = Assert.Throws<ValidationException>(() => service.Validate(dto));
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() => timesheetService.Validate(timesheetEntryInsertDto));
         Assert.Contains("UserId must be a positive integer.", ex.Message);
     }
 
@@ -627,8 +785,7 @@ public class TimesheetServiceTests
     public void Validate_InsertDto_WithInvalidProjectId_ThrowsValidationException()
     {
         // Arrange
-        var service = CreateService();
-        var dto = new TimesheetEntryInsertDto
+        var timesheetEntryInsertDto = new TimesheetEntryInsertDto
         {
             UserId = 1,
             ProjectId = 0, // invalid
@@ -637,8 +794,16 @@ public class TimesheetServiceTests
             Description = "Invalid project"
         };
 
-        // Act & Assert
-        var ex = Assert.Throws<ValidationException>(() => service.Validate(dto));
+        // mock repo
+        var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
+        // mock validator
+        var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
+
+        var timesheetService = new TimesheetService(timesheetRepositoryMock.Object, timesheetEntryValidatorMock.Object);
+
+        // Act
+        // Assert
+        var ex = Assert.Throws<ValidationException>(() => timesheetService.Validate(timesheetEntryInsertDto));
         Assert.Contains("ProjectId must be a positive integer.", ex.Message);
     }
 
@@ -700,11 +865,4 @@ public class TimesheetServiceTests
     }
 
     #endregion GetDuplicateTimesheetRow tests  (copilot generated)
-
-    private static TimesheetService CreateService()
-    {
-        var repoMock = new Mock<ITimesheetRepository>();
-        var validatorMock = new Mock<ITimesheetEntryValidator>();
-        return new TimesheetService(repoMock.Object, validatorMock.Object);
-    }
 }
