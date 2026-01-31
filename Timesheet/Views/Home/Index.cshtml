@@ -22,14 +22,14 @@
             <th>&nbsp;</th>
         </tr>
     </thead>
-
     <tbody>
         @if (Model.TimesheetEntries != null)
         {
-            foreach (var timesheetEntry in Model.TimesheetEntries)
+            foreach (var timesheetEntryDto in Model.TimesheetEntries)
             {
-                <partial name="_TimesheetRow" model="timesheetEntry" />
+                <partial name="_TimesheetRow" model="new TimesheetRowViewModel { TimesheetEntryDto = timesheetEntryDto, IsEditable = true }" />
             }
+            // TODO: maybe this ADD TimesheetRow (below) can go into _TimesheetRow.cshtml with PRINT and UPDATE TimesheetRow?
         }
         <tr class="table-secondary">
             <form asp-action="Add" method="post">
@@ -47,7 +47,7 @@
                 <span asp-validation-for="NewTimesheetEntry.Date" class="text-danger"></span>
             </td>
             <td>
-                <input asp-for="NewTimesheetEntry.Hours" class="form-control" />
+                <input asp-for="NewTimesheetEntry.Hours" class="form-control" type="number" step="0.1" />
                 <span asp-validation-for="NewTimesheetEntry.Hours" class="text-danger"></span>
             </td>
             <td>

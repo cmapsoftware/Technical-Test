@@ -13,7 +13,7 @@ public class TimesheetService(ITimesheetRepository timesheetRepository, ITimeshe
 
     public IEnumerable<TimesheetEntryDto> GetAll()
     {
-        var timesheetEntries = _timesheetRepository.GetAll();
+        var timesheetEntries = _timesheetRepository.GetAllTimesheetEntries();
         var timesheetEntryDtos = timesheetEntries.Select(e => new TimesheetEntryDto
         {
             Id = e.Id,
@@ -29,7 +29,7 @@ public class TimesheetService(ITimesheetRepository timesheetRepository, ITimeshe
     // Note: this method is very specific, in a full project I'd do something more general
     public TimesheetEntryDto? GetDuplicateTimesheetRow(int userId, int projectId, DateTime date, int? currentUserId)
     {
-        var timesheetEntry = _timesheetRepository.GetDuplicateTimesheetRow( userId, projectId, date, currentUserId);
+        var timesheetEntry = _timesheetRepository.GetDuplicateTimesheetRow(userId, projectId, date, currentUserId);
 
         if (timesheetEntry == null)
         {
@@ -62,7 +62,7 @@ public class TimesheetService(ITimesheetRepository timesheetRepository, ITimeshe
             UserId = timesheetEntryInsertDto.UserId,
             ProjectId = timesheetEntryInsertDto.ProjectId,
             Date = timesheetEntryInsertDto.Date,
-            Hours = timesheetEntryInsertDto.Hours,
+            Hours = FormatHours(timesheetEntryInsertDto.Hours),
             Description = timesheetEntryInsertDto.Description
         });
 
@@ -93,7 +93,7 @@ public class TimesheetService(ITimesheetRepository timesheetRepository, ITimeshe
             UserId = timesheetEntryDto.UserId,
             ProjectId = timesheetEntryDto.ProjectId,
             Date = timesheetEntryDto.Date,
-            Hours = timesheetEntryDto.Hours,
+            Hours = FormatHours(timesheetEntryDto.Hours),
             Description = timesheetEntryDto.Description
         };
 
@@ -121,5 +121,13 @@ public class TimesheetService(ITimesheetRepository timesheetRepository, ITimeshe
     {
         var validationContext = new ValidationContext(dto);
         Validator.ValidateObject(dto, validationContext, validateAllProperties: true);
+    }
+
+    /// <summary>
+    /// functioned out as used in several places and we can't rely upon the U.I. input
+    /// </summary>
+    private static decimal FormatHours(decimal hours)
+    {
+        return Math.Round(hours, 2);
     }
 }

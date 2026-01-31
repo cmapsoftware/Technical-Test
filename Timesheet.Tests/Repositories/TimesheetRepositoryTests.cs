@@ -16,7 +16,7 @@ namespace Timesheet.Tests.Repositories
             var timesheetRepository = new TimesheetRepository();
 
             // Act
-            var timeSheetEntryList = timesheetRepository.GetAll();
+            var timeSheetEntryList = timesheetRepository.GetAllTimesheetEntries();
 
             // Assert
             Assert.Empty(timeSheetEntryList);
@@ -38,79 +38,13 @@ namespace Timesheet.Tests.Repositories
             var timesheetEntry3WithId = timesheetRepository.Add(timesheetEntryInsert3);
 
             // Assert
-            var timesheetEntryList = timesheetRepository.GetAll();
+            var timesheetEntryList = timesheetRepository.GetAllTimesheetEntries();
             Assert.Contains(timesheetEntry1WithId, timesheetEntryList);
             Assert.Contains(timesheetEntry2WithId, timesheetEntryList);
             Assert.Contains(timesheetEntry3WithId, timesheetEntryList);
         }
 
         #endregion GetAll  <!-- I like annotating the #endregion. It makes large files easier to navigate. -->
-
-        #region Get (copilot generated)
-
-        [Fact]
-        public void GetById_ShouldReturnNull_WhenRepositoryIsEmpty()
-        {
-            // Arrange
-            var repo = new TimesheetRepository();
-
-            // Act
-            var result = repo.GetById(1);
-
-            // Assert
-            Assert.Null(result);
-        }
-
-        [Fact]
-        public void GetById_ShouldReturnCorrectEntry_WhenEntryExists()
-        {
-            // Arrange
-            var repo = new TimesheetRepository();
-            var date = new DateTime(2024, 1, 1);
-
-            var inserted = repo.Add(new TimesheetEntryInsert
-            {
-                UserId = 10,
-                ProjectId = 20,
-                Date = date,
-                Hours = 2.5M,
-                Description = "Work"
-            });
-
-            // Act
-            var result = repo.GetById(inserted.Id);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(inserted.Id, result!.Id);
-            Assert.Equal(inserted.UserId, result.UserId);
-            Assert.Equal(inserted.ProjectId, result.ProjectId);
-            Assert.Equal(inserted.Date, result.Date);
-        }
-
-        [Fact]
-        public void GetById_ShouldReturnNull_ForNonExistingId()
-        {
-            // Arrange
-            var repo = new TimesheetRepository();
-
-            var inserted = repo.Add(new TimesheetEntryInsert
-            {
-                UserId = 1,
-                ProjectId = 1,
-                Date = new DateTime(2024, 1, 2),
-                Hours = 4M,
-                Description = "Test"
-            });
-
-            // Act
-            var result = repo.GetById(inserted.Id + 1000); // id that does not exist
-
-            // Assert
-            Assert.Null(result);
-        }
-
-        #endregion Get (copilot generated)
 
         #region Add
 
@@ -126,7 +60,7 @@ namespace Timesheet.Tests.Repositories
             var timesheetEntryWithId = timesheetRepository.Add(timesheetEntry);
 
             // Assert
-            Assert.Contains(timesheetEntryWithId, timesheetRepository.GetAll());
+            Assert.Contains(timesheetEntryWithId, timesheetRepository.GetAllTimesheetEntries());
         }
 
         [Fact]
@@ -161,7 +95,7 @@ namespace Timesheet.Tests.Repositories
             var timesheetEntrytimesheetEntryWithNoDescriptionWithId = timesheetRepository.Add(timesheetEntryWithNoDescription);
 
             // Assert
-            Assert.Contains(timesheetEntrytimesheetEntryWithNoDescriptionWithId, timesheetRepository.GetAll());
+            Assert.Contains(timesheetEntrytimesheetEntryWithNoDescriptionWithId, timesheetRepository.GetAllTimesheetEntries());
             Assert.Null(timesheetEntrytimesheetEntryWithNoDescriptionWithId.Description);
         }
 
@@ -186,7 +120,7 @@ namespace Timesheet.Tests.Repositories
             var timesheetEntryToInsertAfterDeletionsId = timesheetRepository.Add(timesheetEntryToInsertAfterDeletions).Id;
 
             // Assert
-            var timeSheetEntryList = timesheetRepository.GetAll();
+            var timeSheetEntryList = timesheetRepository.GetAllTimesheetEntries();
             Assert.DoesNotContain(timeSheetEntryList, timesheetEntry => timesheetEntry.Id == timesheetEntryToDelete1Id);
             Assert.DoesNotContain(timeSheetEntryList, timesheetEntry => timesheetEntry.Id == timesheetEntryToDelete1Id);
             Assert.Contains(timeSheetEntryList, timesheetEntry => timesheetEntry.Id == timesheetEntryToInsertAfterDeletionsId);
@@ -243,7 +177,7 @@ namespace Timesheet.Tests.Repositories
             timesheetRepository.Delete(timesheetEntryToBeDeletedWithId.Id);
 
             // Assert
-            var timeSheetEntryList = timesheetRepository.GetAll();
+            var timeSheetEntryList = timesheetRepository.GetAllTimesheetEntries();
             Assert.DoesNotContain(timesheetEntryToBeDeletedWithId, timeSheetEntryList);
             Assert.Contains(timesheetEntryToRemainUnaffectedWithId, timeSheetEntryList);
         }
@@ -261,7 +195,7 @@ namespace Timesheet.Tests.Repositories
             var timesheetEntryToBeUpdated = TimesheetEntryData.ListTimesheetEntryInsert[1];
             var timesheetEntryUpdater = TimesheetEntryData.ListTimesheetEntry[2];
             timesheetRepository.Add(timesheetEntryUnaffected);
-            var timesheetEntryToBeUpdatedWithId =  timesheetRepository.Add(timesheetEntryToBeUpdated);
+            var timesheetEntryToBeUpdatedWithId = timesheetRepository.Add(timesheetEntryToBeUpdated);
 
             // Make timesheetEntryUpdater have the same Id as timesheetEntryToBeUpdated (all other properties differ)
             timesheetEntryUpdater.Id = timesheetEntryToBeUpdatedWithId.Id;
@@ -270,7 +204,7 @@ namespace Timesheet.Tests.Repositories
             var timesheetEntryUpdated = timesheetRepository.Update(timesheetEntryUpdater);
 
             // Assert
-            var timeSheetEntryList = timesheetRepository.GetAll();
+            var timeSheetEntryList = timesheetRepository.GetAllTimesheetEntries();
 
             // FluentAssertions performs a property-based comparison rather than reference equality, which we need here
             timeSheetEntryList.Should().ContainEquivalentOf(timesheetEntryUnaffected);

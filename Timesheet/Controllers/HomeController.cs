@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using Timesheet.Models.Dto;
 using Timesheet.Models.ViewModels;
 using Timesheet.Services;
@@ -81,12 +80,6 @@ public class HomeController(ITimesheetService service) : Controller
         }
 
         return RedirectToAction("Index");
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
     private ViewResult RedirectWithInsertDto(TimesheetEntryInsertDto? timesheetEntryInsertDto)

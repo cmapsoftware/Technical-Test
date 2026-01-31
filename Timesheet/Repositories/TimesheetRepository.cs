@@ -1,4 +1,6 @@
-﻿using Timesheet.Models.Domain;
+﻿using System.Globalization;
+using Timesheet.Models.Domain;
+using Timesheet.Models.Dto;
 
 namespace Timesheet.Repositories;
 
@@ -8,19 +10,24 @@ namespace Timesheet.Repositories;
 public class TimesheetRepository : ITimesheetRepository
 {
     private readonly List<TimesheetEntry> _listTimesheetEntries = [];
-
-    // Private counter used to generate unique Ids for new entries mirroring DB auto-increment.
-    // Avoid scanning list for highest Id. Also if highest row was deleted we do not want to reuse that ID.
     private int _nextId = 1;
 
-    public IEnumerable<TimesheetEntry> GetAll()
+    #region Public methods
+
+    public IEnumerable<TimesheetEntry> GetAllTimesheetEntries()
     {
         return _listTimesheetEntries;
     }
 
-    public TimesheetEntry? GetById(int timesheetId)
+    public IEnumerable<TimesheetEntry> GetReportTimesheetEntries(int userId, int isoWeek, int isoYear)
     {
-        return _listTimesheetEntries.FirstOrDefault(timesheetEntry => timesheetEntry.Id == timesheetId);
+        return _listTimesheetEntries.Where(timesheetEntry =>
+            timesheetEntry.UserId == userId &&
+            ISOWeek.GetWeekOfYear(timesheetEntry.Date) == isoWeek &&
+            ISOWeek.GetYear(timesheetEntry.Date) == isoYear
+        )
+            .OrderBy(timesheetEntry => timesheetEntry.ProjectId)
+            .ThenBy(timesheetEntry => timesheetEntry.Date);
     }
 
     public TimesheetEntry? GetDuplicateTimesheetRow(int userId, int projectId, DateTime date, int? currentRowId)
@@ -74,4 +81,55 @@ public class TimesheetRepository : ITimesheetRepository
         }
         return _listTimesheetEntries.Remove(existing);
     }
+
+    public IEnumerable<int> GetAllUserIds()
+    {
+        return _listTimesheetEntries
+            .Select(entry => entry.UserId)
+            .Distinct()
+            .Order();
+    }
+
+    public IEnumerable<IsoWeekDto> GetAllIsoWeeks()
+    {
+        var dates = _listTimesheetEntries
+            .Select(entry => entry.Date)
+            .Distinct();
+
+        var results =
+            dates
+                .Select(d => new
+                {
+                    Date = d,
+                    Year = ISOWeek.GetYear(d),
+                    Week = ISOWeek.GetWeekOfYear(d)
+                })
+                .GroupBy(x => new { x.Year, x.Week })
+                .Select(g =>
+                {
+                    return new IsoWeekDto
+                    {
+                        IsoYearId = g.Key.Year,
+                        IsoWeekId = g.Key.Week,
+                        WeekRange = $"{DateOnly.FromDateTime(ISOWeek.ToDateTime(g.Key.Year, g.Key.Week, DayOfWeek.Monday))}" +
+                                    $" - {DateOnly.FromDateTime(ISOWeek.ToDateTime(g.Key.Year, g.Key.Week, DayOfWeek.Sunday))}"
+                    };
+                })
+                .OrderBy(x => x.IsoYearId)
+                .ThenBy(x => x.IsoWeekId)
+                .ToList();
+
+        return results;
+    }
+
+    #endregion Public methods
+
+    #region Private methods
+
+    private TimesheetEntry? GetById(int timesheetId)
+    {
+        return _listTimesheetEntries.FirstOrDefault(timesheetEntry => timesheetEntry.Id == timesheetId);
+    }
+
+    #endregion Private methods
 }

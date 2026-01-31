@@ -1,0 +1,128 @@
+﻿@using Timesheet.Models.ViewModels
+@model ReportViewModel
+
+@{
+    ViewData["Title"] = "Timesheet Report Page";
+}
+
+<div class="container float-start" style="max-width: 600px;">
+    <form asp-action="SubmitReport" method="post">
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>User</th>
+                    <th>IsoWeek</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <select class="form-select" name="SelectedUserId" required>
+                            <option value="">select user</option>
+                            @if (Model.UserIds != null)
+                            {
+                                foreach (var id in Model.UserIds)
+                                {
+                                    if (id == Model.SelectedUserId)
+                                    {
+                                        <option value="@id" selected>@id</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@id">@id</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select" name="SelectedIsoWeekIdIsoYearId" required>
+                            <option value="">select week</option>
+                            @if (Model.IsoWeeks != null)
+                            {
+                                foreach (var isoWeek in Model.IsoWeeks)
+                                {
+                                    // TODO: View should not do this concatenation? move to view model composition
+                                    var id = $"{isoWeek.IsoWeekId}-{isoWeek.IsoYearId}";
+                                    if (id == Model.SelectedIsoWeekIdIsoYearId)
+                                    {
+                                        <option value="@id" selected>@isoWeek.WeekRange</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@id">@isoWeek.WeekRange</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <button type="submit" class="btn btn-primary">
+                            Generate Report
+                        </button>
+                    </td>
+                </tr>
+            <tbody>
+        </table>
+    </form>
+</div>
+<div class="clearfix"></div>
+
+@if (@Context.Request.Path == "/Reporting/SubmitReport")
+{
+    <div>
+        <p class="fw-bold">Entries for UserId #@Model.SelectedUserId on week: @Model.SelectedIsoWeekRange</p>
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>UserId</th>
+                    <th>ProjectId</th>
+                    <th>Date</th>
+                    <th>Hours</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.TimesheetEntries != null)
+                {
+                    foreach (var timesheetEntryDto in Model.TimesheetEntries)
+                    {
+                        <partial name="_TimesheetRow" model="new TimesheetRowViewModel { TimesheetEntryDto = timesheetEntryDto, IsEditable = false }" />
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <p class="fw-bold">Hours per project for UserId #@Model.SelectedUserId on week: @Model.SelectedIsoWeekRange</p>
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Project Id</th>
+                    <th>Hours Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ProjectHours != null)
+                {
+                    foreach (var projectHours in Model.ProjectHours)
+                    {
+                        <tr>
+                            <td>@projectHours.Key</td>
+                            <td>@projectHours.Value</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

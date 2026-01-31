@@ -1,0 +1,55 @@
+﻿@using Timesheet.Models.ViewModels
+
+@model TimesheetRowViewModel
+
+@if (Model.IsEditable)
+{
+    <form asp-action="RowAction" method="post">
+        <tr>
+            <td>
+                <input asp-for="TimesheetEntryDto.Id" type="hidden" />
+                #@(Model.TimesheetEntryDto?.Id ?? 0)
+            </td>
+            <td>
+                <input asp-for="TimesheetEntryDto.UserId" class="form-control" min="1" />
+            <td>
+                <input asp-for="TimesheetEntryDto.ProjectId" class="form-control" min="1" />
+            </td>
+            <td>
+                <input asp-for="TimesheetEntryDto.Date" type="date" class="form-control" />
+            </td>
+            <td>
+                <input asp-for="TimesheetEntryDto.Hours" type="number" class="form-control" step="0.1" />
+            </td>
+            <td>
+                <input asp-for="TimesheetEntryDto.Description" class="form-control" />
+            </td>
+            <td>
+                <button type="submit" name="action" value="update" class="btn btn-success btn-sm">Update</button>
+                <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Delete</button>
+            </td>
+        </tr>
+    </form>
+}
+else
+{
+    <tr>
+        <td>
+            #@(Model.TimesheetEntryDto?.Id ?? 0)
+        </td>
+        <td>
+            @Model.TimesheetEntryDto?.UserId
+        <td>
+            @Model.TimesheetEntryDto?.ProjectId
+        </td>
+        <td>
+            @(Model.TimesheetEntryDto?.Date.ToString("dd/MM/yyyy") ?? "")
+        </td>
+        <td>
+            @Model.TimesheetEntryDto?.Hours
+        </td>
+        <td>
+            @Model.TimesheetEntryDto?.Description
+        </td>
+    </tr>
+}

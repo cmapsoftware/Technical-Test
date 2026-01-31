@@ -19,7 +19,7 @@ public class TimesheetServiceTests
         // Arrange
         var timesheetRepositoryMock = new Mock<ITimesheetRepository>();
         timesheetRepositoryMock
-            .Setup(timesheetRepository => timesheetRepository.GetAll())
+            .Setup(timesheetRepository => timesheetRepository.GetAllTimesheetEntries())
             .Returns(TimesheetEntryData.ListTimesheetEntry);
 
         var timesheetEntryValidatorMock = new Mock<ITimesheetEntryValidator>();
